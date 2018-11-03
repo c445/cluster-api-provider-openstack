@@ -18,11 +18,10 @@ package main
 
 import (
 	"flag"
+	"github.com/spf13/pflag"
 	"log"
 
 	"github.com/golang/glog"
-	"github.com/spf13/pflag"
-
 	"sigs.k8s.io/cluster-api-provider-openstack/pkg/apis"
 	"sigs.k8s.io/cluster-api-provider-openstack/pkg/controller"
 	clusterapis "sigs.k8s.io/cluster-api/pkg/apis"
@@ -34,6 +33,9 @@ import (
 func main() {
 	// the following line exists to make glog happy, for more information, see: https://github.com/kubernetes/kubernetes/issues/17162
 	flag.CommandLine.Parse([]string{})
+	flag.Parse()
+	flag.Lookup("v").Value.Set("5")
+	flag.Lookup("logtostderr").Value.Set("true")
 	pflag.Parse()
 
 	// Get a config to talk to the apiserver

@@ -133,6 +133,7 @@
     "openstack/identity/v2/tenants",
     "openstack/identity/v2/tokens",
     "openstack/identity/v3/tokens",
+    "openstack/networking/v2/networks",
     "openstack/utils",
     "pagination",
   ]
@@ -718,6 +719,7 @@
     "github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/keypairs",
     "github.com/gophercloud/gophercloud/openstack/compute/v2/servers",
     "github.com/gophercloud/gophercloud/openstack/identity/v3/tokens",
+    "github.com/gophercloud/gophercloud/openstack/networking/v2/networks",
     "github.com/gophercloud/utils/openstack/clientconfig",
     "github.com/spf13/pflag",
     "k8s.io/apimachinery/pkg/apis/meta/v1",

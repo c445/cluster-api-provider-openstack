@@ -1,0 +1,46 @@
+items:
+- apiVersion: "cluster.k8s.io/v1alpha1"
+  kind: Machine
+  metadata:
+    generateName: c01p006-master-
+    labels:
+      set: master
+  spec:
+    providerConfig:
+      value:
+        apiVersion: "openstackproviderconfig/v1alpha1"
+        kind: "OpenstackProviderConfig"
+        flavor: large
+        image: coreos-1745.7.0-xfs-tss
+        sshUserName: core
+        availabilityZone: c01az02
+        networks:
+        - name: c01p006-kubernetes
+        floatingIP: 53.6.241.170
+        securityGroups:
+        - c01p006_secgroup_kube_nodes_v1
+        - c01p006_secgroup_kube_master_v1
+    versions:
+      kubelet: 1.12.1
+      controlPlane: 1.12.1
+- apiVersion: "cluster.k8s.io/v1alpha1"
+  kind: Machine
+  metadata:
+    generateName: c01p006-node-
+    labels:
+      set: node
+  spec:
+    providerConfig:
+      value:
+        apiVersion: "openstackproviderconfig/v1alpha1"
+        kind: "OpenstackProviderConfig"
+        flavor: go-large
+        image: coreos-1745.7.0-xfs-tss
+        sshUserName: core
+        availabilityZone: c01az02
+        networks:
+        - name: c01p006-kubernetes
+        securityGroups:
+        - c01p006_secgroup_kube_nodes_v1
+    versions:
+      kubelet: 1.12.1

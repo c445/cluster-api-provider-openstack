@@ -75,13 +75,22 @@ func NewMachineActuator(machineClient client.Client, scheme *runtime.Scheme) (*O
 	if err != nil {
 		return nil, err
 	}
+	sshKeyUserPath := os.Getenv("SSH_KEY_USER_PATH")
+	if sshKeyUserPath == "" {
+		sshKeyUserPath = SshKeyUserPath
+	}
 	var sshCred SshCreds
-	b, err := ioutil.ReadFile(SshKeyUserPath)
+	b, err := ioutil.ReadFile(sshKeyUserPath)
 	if err != nil {
 		return nil, err
 	}
 	sshCred.user = string(b)
-	b, err = ioutil.ReadFile(SshPublicKeyPath)
+
+	sshPublicKeyPath := os.Getenv("SSH_PUBLIC_KEY_PATH")
+	if sshPublicKeyPath == "" {
+		sshPublicKeyPath = SshPublicKeyPath
+	}
+	b, err = ioutil.ReadFile(sshPublicKeyPath)
 	if err != nil {
 		return nil, err
 	}
@@ -107,10 +116,14 @@ func NewMachineActuator(machineClient client.Client, scheme *runtime.Scheme) (*O
 		}
 	}
 	if needCreate {
-		if _, err := os.Stat(SshPrivateKeyPath); err != nil {
+		sshPrivateKeyPath := os.Getenv("SSH_PRIVATE_KEY_PATH")
+		if sshPrivateKeyPath == "" {
+			sshPrivateKeyPath = SshPrivateKeyPath
+		}
+		if _, err := os.Stat(sshPrivateKeyPath); err != nil {
 			return nil, fmt.Errorf("ssh key pair need to be specified")
 		}
-		sshCred.privateKeyPath = SshPrivateKeyPath
+		sshCred.privateKeyPath = sshPrivateKeyPath
 
 		err = machineService.CreateKeyPair(sshCred.user, sshCred.publicKey)
 		if err != nil {
@@ -122,7 +135,11 @@ func NewMachineActuator(machineClient client.Client, scheme *runtime.Scheme) (*O
 		return nil, err
 	}
 
-	setupConfigWatcher, err := machinesetup.NewConfigWatch(MachineSetupConfigPath)
+	machineSetupConfigPath := os.Getenv("MACHINE_SETUP_CONFIG_PATH")
+	if machineSetupConfigPath == "" {
+		machineSetupConfigPath = MachineSetupConfigPath
+	}
+	setupConfigWatcher, err := machinesetup.NewConfigWatch(machineSetupConfigPath)
 	if err != nil {
 		return nil, fmt.Errorf("error creating machine setup config watcher: %v", err)
 	}

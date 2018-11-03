@@ -48,8 +48,10 @@ type OpenstackProviderConfig struct {
 }
 
 type NetworkParam struct {
-	// The UUID of the network. Required if you omit the port attribute.
+	// The UUID of the network. Required if you omit the Name attribute.
 	UUID string `json:"uuid,omitempty"`
+	// The Name of the network. Required if you omit the UUID attribute.
+	Name string `json:"name,omitempty"`
 	// A fixed IPv4 address for the NIC.
 	FixedIp string `json:"fixed_ip,omitempty"`
 }

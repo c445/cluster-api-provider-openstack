@@ -26,6 +26,8 @@ spec:
           items:
             uuid:
               type: string
+            name:
+              type: string
             fixed_ip:
               type: string
           type: array

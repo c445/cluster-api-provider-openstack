@@ -19,6 +19,7 @@ package clients
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 
 	"github.com/golang/glog"
 	"github.com/gophercloud/gophercloud"
@@ -35,6 +36,7 @@ type InstanceService struct {
 	provider       *gophercloud.ProviderClient
 	computeClient  *gophercloud.ServiceClient
 	identityClient *gophercloud.ServiceClient
+	networkClient  *gophercloud.ServiceClient
 }
 
 type Instance struct {
@@ -91,11 +93,18 @@ func NewInstanceService() (*InstanceService, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Create serviceClient err: %v", err)
 	}
+	networkClient, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{
+		Region: clientOpts.RegionName,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Create serviceClient err: %v", err)
+	}
 
 	return &InstanceService{
 		provider:       provider,
 		identityClient: identityClient,
 		computeClient:  serverClient,
+		networkClient:  networkClient,
 	}, nil
 }
 
@@ -146,6 +155,25 @@ func (is *InstanceService) InstanceCreate(name string, config *openstackconfigv1
 	if config == nil {
 		return nil, fmt.Errorf("create Options need be specified to create instace.")
 	}
+
+	if config.Networks[0].UUID == "" && config.Networks[0].Name != "" {
+		r, err := networks.List(is.networkClient, networks.ListOpts{Name: config.Networks[0].Name}).AllPages()
+		if err != nil {
+			return nil, fmt.Errorf("error listing networks: %v", err)
+		}
+		networksArr, err := networks.ExtractNetworks(r)
+		if err != nil {
+			return nil, fmt.Errorf("error extracting networks: %v", err)
+		}
+		if len(networksArr) == 0 {
+			return nil, fmt.Errorf("found no network with name %s", config.Networks[0].Name)
+		}
+		if len(networksArr) > 1 {
+			return nil, fmt.Errorf("found more than one network with name %s", config.Networks[0].Name)
+		}
+		config.Networks[0].UUID = networksArr[0].ID
+	}
+
 	userData := base64.StdEncoding.EncodeToString([]byte(cmd))
 	createOpts = servers.CreateOpts{
 		Name:             name,
